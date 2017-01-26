@@ -98,11 +98,11 @@ class Institution():
             except KeyError:
                 if student.active:
                     pass
-                    print('Active student {} missing Colleague data:'.format(student.real_name), 'Berklee ID: {}'.format(student.for_key.zfill(7)), 'BoCo ID:', student_id.zfill(9), sep='\n')
+                    print('Active student {} missing Colleague data:'.format(student.real_name), 'Berklee ID: {}'.format(student.for_key.zfill(7)), 'BoCo ID:', student_id.zfill(9), 
+                    'Birth date: {}'.format(student.dob), 'Email: {}'.format(student.email), sep='\n')
                     print('home registrations:')
                     pp.pprint(student.registrations['home'])
-                    print('foreign registrations:')
-                    pp.pprint(student.registrations['foreign'])
+
 
 class Student():
 
@@ -110,6 +110,8 @@ class Student():
         self.name = name #home key
         self.real_name = data['Student']
         self.for_key = data['BCM_StudID']
+        self.dob = data['DOB']
+        self.email = data['Email']
         self.registrations = {'home': {}, 'foreign': {}}
         self.active = False
 
@@ -122,7 +124,6 @@ class Student():
 
     def register(self, mode, course_sec, course_data, names):
         # Save the column headers for the respective
-        course_sec = course_sec.replace('LAHS-223W-001', 'LAHS-223-W001')
         self.registrations[mode][course_sec] = {}
         for name in names:
             self.registrations[mode][course_sec][name] = course_data[names[name]]
@@ -173,7 +174,10 @@ def main():
             for error in errors:
                 output.append(error)
     #print(output)
-    print(tabulate(output, headers=['Name', 'BoCo ID', 'Berklee ID', 'Class', 'Add / Drop', 'Update Date']))
+    print(tabulate(sorted(output), headers=['Name', 'BoCo ID', 'Berklee ID', 'Class', 'Add / Drop', 'Update Date']))
+    print('Saved list:')
+    for row in output:
+        print(row[2])
 
 if __name__ == '__main__':
     main()
