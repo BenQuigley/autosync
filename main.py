@@ -157,11 +157,11 @@ class Student():
 
 
     def reckon(self):
-        errors = []
 
         # Check the home school registrations for courses that have the wrong status in the 
         # host school, or that don't appear in the host school.
     
+        errors = []
         for course in self.registrations['home']:
             course_data = self.registrations['home'][course]
             show_status = {0: colored('Drop', 'red', attrs=['bold']), 1: colored('Add', 'green', attrs=['bold'])}
