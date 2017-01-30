@@ -3,6 +3,7 @@ from tools import get_file
 from pprint import PrettyPrinter
 from ids_hack import ids as missing_ids
 from tabulate import tabulate
+from termcolor import colored
 
 pp = PrettyPrinter(indent=4)
 
@@ -54,7 +55,9 @@ class Institution():
     def read_home_roster(self):
 
         # Read the SIS output data from the students' home institution.
+
         csv_file = get_file('IntegCrsOff_BCB2BCM_*.csv', target_dir='/home/iroh/cross-reg/')
+        print()
         data = self.make_dict(csv_file, student_id_column=9, course_section_column=6)
 
         # Interpret the data by creating Student objects and adding them to institution.students.
@@ -76,8 +79,9 @@ class Institution():
 
     def read_foreign_roster(self):
 
-        # Read the SIS output data from the host institution:
-        csv_file = get_file('BoCo Integrated Offerings Registrations for A Given Term.csv', target_dir='/home/iroh/cross-reg')
+        # Read the SIS output data from the host institution.
+
+        csv_file = get_file('BoCo Integrated Offerings Registrations for A Given Term.csv', target_dir='/home/iroh/Downloads')
         data = self.make_dict(csv_file, student_id_column=0, course_section_column=3)
 
         # Some students without home institution IDs entered into the host system, either
@@ -106,7 +110,6 @@ class Institution():
 
             except KeyError:
                 if student.active:
-                    pass
                     print('Active student {} missing Colleague data:'.format(student.real_name), 'Berklee ID: {}'.format(student.for_key.zfill(7)), 'BoCo ID:', student_id.zfill(9), 
                     'Birth date: {}'.format(student.dob), 'Email: {}'.format(student.email), sep='\n')
                     print('home registrations:')
@@ -154,8 +157,9 @@ class Student():
     
         for course in self.registrations['home']:
             course_data = self.registrations['home'][course]
+            show_status = {0: colored('Drop', 'red', attrs=['bold']), 1: colored('Add', 'green', attrs=['bold'])}
             log = [self.real_name, self.name.zfill(9), self.for_key.zfill(7), course,
-                   {0: 'Drop', 1: 'Add'}[course_data['active']], course_data['eff date']]
+                   show_status[course_data['active']], course_data['eff date']]
             if course in self.registrations['foreign']:
                 if not course_data['active'] == self.registrations['foreign'][course]['active']:
                     errors.append(log)
@@ -168,7 +172,7 @@ class Student():
         for course in self.registrations['foreign']:
             course_data = self.registrations['foreign'][course]
             log = [self.real_name, self.name.zfill(9), self.for_key.zfill(7), course,
-                  'Never Added', course_data['eff date']]
+                  colored('Never Added', 'red', attrs=['bold']), course_data['eff date']]
             if not course in self.registrations['home'] and course_data['active']:
                 errors.append(log)
 
@@ -185,10 +189,8 @@ def main():
         if errors:
             for error in errors:
                 output.append(error)
-    print(tabulate(sorted(output), headers=['Name', 'BoCo ID', 'Berklee ID', 'Class', 'Add / Drop', 'Update Date']))
-    print('\nSaved list for Colleague:')
-    for row in output:
-        print(row[2])
+    print(colored('Updates to Make in Colleague\n', attrs=['bold']))
+    print(tabulate(sorted(output), headers=['Name', 'BoCo ID', 'Berklee ID', 'Class', 'Add / Drop', 'Update Date']), '\n')
 
 if __name__ == '__main__':
     main()
