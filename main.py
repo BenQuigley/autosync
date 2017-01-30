@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv
 from tools import get_file
 from pprint import PrettyPrinter
@@ -61,7 +62,6 @@ class Institution():
         # Read the SIS output data from the students' home institution.
 
         csv_file = get_file('IntegCrsOff_BCB2BCM_*.csv', target_dir='/home/iroh/cross-reg/')
-        print()
         data = self.make_dict(csv_file, student_id_column=9, course_section_column=6)
 
         # Interpret the data by creating Student objects and adding them to institution.students.
@@ -114,8 +114,11 @@ class Institution():
 
             except KeyError:
                 if student.active:
-                    print('Active student {} missing Colleague data:'.format(student.real_name), 'Berklee ID: {}'.format(student.for_key.zfill(7)), 'BoCo ID:', student_id.zfill(9), 
-                    'Birth date: {}'.format(student.dob), 'Email: {}'.format(student.email), sep='\n')
+                    print('Active student {} missing Colleague data:'.format(student.real_name))
+                    print('Berklee ID: {}'.format(student.for_key.zfill(7)))
+                    print('BoCo ID:', student_id.zfill(9))
+                    print('Birth date: {}'.format(student.dob))
+                    print('Email: {}'.format(student.email))
                     print('home registrations:')
                     pp.pprint(student.registrations['home'])
                     print()

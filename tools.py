@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime as dt
 from dateutil import parser as ps
 import locale
@@ -49,8 +50,7 @@ def get_file(file_pattern, target_dir=None, description = 'file'):
                 3: {'desc': 'Other', 'path': home}}
         print('Where is the {}?'.format(description))
         for loc in locs:
-            print(loc, ': ', locs[loc]['desc'], ' (', locs[loc]['path'],
-                  ')', sep='')
+            print(loc, ': ', locs[loc]['desc'], ' (', locs[loc]['path'], ')', sep='')
         while target_dir == None:
             try:
                 choice = int(input('> '))

@@ -4,3 +4,4 @@ sample*
 *.txt
 ids_hack.py
 output.txt
+*.pyc
