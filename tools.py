@@ -109,18 +109,3 @@ def save(data, target_loc):
             record = '{}\n'.format(record) if record[-1:] != '\n' else record
             outfile.write(record)
     print('Saved them in', target_loc)
-
-
-def pandoc_export(name, markdown_text, outfile_types=['pdf']):
-    if type(markdown_text) == list:
-        markdown_text = '\n.'.join(markdown_text)
-    elif type(markdown_text) != str:
-        markdown_text = str(markdown_text)
-    with open('{}.md'.format(name), 'w') as outfile:
-        outfile.write(markdown_text)
-    for outfile_type in outfile_types:
-        if outfile_type[0] == '.':
-            outfile_type = outfile_type[1:]
-        args = '-s -S -t html5' if outfile_type == 'pdf' else '-s -S'
-        command = 'pandoc "{}.md" -o "{}.{}" {}'.format(name, name, outfile_type, args)
-        os.system(command)
