@@ -16,6 +16,7 @@ pp = PrettyPrinter(indent=4)
 # and class records, and identify any students not registered in both systems.
 
 class Institution():
+
     def __init__(self, name):
         self.name = name
         self.students = {}
