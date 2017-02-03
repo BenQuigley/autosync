@@ -162,17 +162,20 @@ class Student():
         # Check the home school registrations for courses that have the wrong status in the 
         # host school, or that don't appear in the host school.
     
-        errors = []
+        updates = {'Home System': [], 'Host System': []}
         for course in self.registrations['home']:
             course_data = self.registrations['home'][course]
             show_status = {0: colored('Drop', 'red', attrs=['bold']), 1: colored('Add', 'green', attrs=['bold'])}
             log = [self.real_name, self.name.zfill(9), self.for_key.zfill(7), course,
-                   show_status[course_data['active']], course_data['eff date']]
+                   show_status[course_data['active']], course_data['grade'], course_data['eff date']]
             if course in self.registrations['foreign']:
                 if not course_data['active'] == self.registrations['foreign'][course]['active']:
-                    errors.append(log)
+                    updates['Host System'].append(log)
+                if not course_data['grade'] == self.registrations['foreign'][course]['grade']:
+                    log[4] = 'Update with Grade'
+                    updates['Home System'].append(log)
             elif course_data['active']:
-                     errors.append(log)
+                     updates['Host System'].append(log)
 
         # Check the host school registrations for active courses that don't appear 
         # in the home school.
@@ -180,25 +183,31 @@ class Student():
         for course in self.registrations['foreign']:
             course_data = self.registrations['foreign'][course]
             log = [self.real_name, self.name.zfill(9), self.for_key.zfill(7), course,
-                  colored('Never Added', 'red', attrs=['bold']), course_data['eff date']]
+                  colored('Add to home system?', 'red', attrs=['bold']), course_data['eff date']]
             if not course in self.registrations['home'] and course_data['active']:
-                errors.append(log)
+                updates['Home System'].append(log)
 
-        return errors
+        return updates
 
 def main():
+    print()
     boco = Institution('Boston Conservatory')
     boco.read_home_roster()
     boco.read_foreign_roster()
-    output = []
+    all_output = {'Host System': [], 'Home System': []}
     for student_id in sorted(boco.students):
         stud = boco.students[student_id]
-        errors = stud.reckon()
-        if errors:
-            for error in errors:
-                output.append(error)
-    print(colored('Updates to Make in Colleague\n', attrs=['bold']))
-    print(tabulate(sorted(output), headers=['Name', 'BoCo ID', 'Berklee ID', 'Class', 'Add / Drop', 'Update Date']), '\n')
+        output = stud.reckon()
+        for system in all_output:
+            to_append = output[system]
+            for line in to_append:
+                all_output[system].append(line)
+    heads = ['Name', 'BoCo ID', 'Berklee ID', 'Class', 'What To Do', 'Grade', 'Update Date']
+    translations = {'Home System': 'PowerCampus', 'Host System': 'Colleague'}
+    for system in all_output:
+        if all_output[system]:
+            print(colored('Updates for {}\n'.format(translations[system]), attrs=['bold']))
+            print(tabulate(sorted(all_output[system]), headers=heads), '\n')
 
 if __name__ == '__main__':
     main()
