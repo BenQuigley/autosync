@@ -96,6 +96,19 @@ class Institution():
 
         del(data[''])
 
+        # Interpret the data by creating Student objects and adding them to institution.students.
+
+        for student_id in data:
+            courses = data[student_id]
+            for course in courses:
+                record = courses[course]
+                host_equivs = {'Student': record['Name'], 'BCM_StudID': record['Berklee ID'], 'DOB': None,
+                               'Email': None}
+                for equiv in host_equivs:
+                    record[equiv] = host_equivs[equiv]
+                if not student_id in self.students:
+                    self.add_student(name=student_id, data=record)
+
         # For each student, find their registrations at the host school and add them to 
         # the student's host registrations list.
 
@@ -183,7 +196,7 @@ class Student():
         for course in self.registrations['foreign']:
             course_data = self.registrations['foreign'][course]
             log = [self.real_name, self.name.zfill(9), self.for_key.zfill(7), course,
-                  colored('Add to home system?', 'red', attrs=['bold']), course_data['eff date']]
+                  colored('Appears in host but not home system?', 'red', attrs=['bold']), course_data['eff date']]
             if not course in self.registrations['home'] and course_data['active']:
                 updates['Home System'].append(log)
 
