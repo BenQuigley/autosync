@@ -86,7 +86,7 @@ class Institution():
 
         # Read the SIS output data from the host institution.
 
-        csv_file = get_file('BoCo Integrated Offerings Registrations for A Given Term.csv', target_dir='/home/iroh/Downloads')
+        csv_file = get_file('BoCo Integrated Offerings Registrations for A Given Term*.csv', target_dir='/home/iroh/Downloads')
         data = self.make_dict(csv_file, student_id_column=0, course_section_column=3)
 
         # Some students without home institution IDs entered into the host system, either
@@ -221,6 +221,7 @@ def main():
         if all_output[system]:
             print(colored('Updates for {}\n'.format(translations[system]), attrs=['bold']))
             print(tabulate(sorted(all_output[system]), headers=heads), '\n')
+    return boco
 
 if __name__ == '__main__':
     main()
