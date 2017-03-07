@@ -20,6 +20,8 @@ class Institution():
     def __init__(self, name):
         self.name = name
         self.students = {}
+        self.read_home_roster()
+        self.read_foreign_roster()
 
     def add_student(self, *args, **kwargs):
 
@@ -171,12 +173,12 @@ class Student():
 
 
     def reckon(self):
-
-        # Check the home school registrations for courses that have the wrong status in the 
-        # host school, or that don't appear in the host school.
     
         updates = {'Home System': [], 'Host System': []}
         for course in self.registrations['home']:
+
+            # Evaluate the home school registrations for missing data in the host school:
+
             course_data = self.registrations['home'][course]
             show_status = {0: colored('Drop', 'red', attrs=['bold']), 1: colored('Add', 'green', attrs=['bold'])}
             log = [self.real_name, self.name.zfill(9), self.for_key.zfill(7), course,
@@ -186,7 +188,7 @@ class Student():
                     updates['Host System'].append(log)
                 if not course_data['grade'] == self.registrations['foreign'][course]['grade']:
                     log[4] = 'Update with Grade'
-                    updates['Home System'].append(log)
+                    updates['Host System'].append(log)
             elif course_data['active']:
                      updates['Host System'].append(log)
 
@@ -203,10 +205,11 @@ class Student():
         return updates
 
 def main():
+
+    # Create an institution object for my use case, the Boston Conservatory.
     print()
     boco = Institution('Boston Conservatory')
-    boco.read_home_roster()
-    boco.read_foreign_roster()
+
     all_output = {'Host System': [], 'Home System': []}
     for student_id in sorted(boco.students):
         stud = boco.students[student_id]
