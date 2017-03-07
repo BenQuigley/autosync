@@ -175,10 +175,10 @@ class Student():
     def reckon(self):
     
         updates = {'Home System': [], 'Host System': []}
+
+        # Evaluate the home school registrations for missing data in the host school.
+
         for course in self.registrations['home']:
-
-            # Evaluate the home school registrations for missing data in the host school:
-
             course_data = self.registrations['home'][course]
             show_status = {0: colored('Drop', 'red', attrs=['bold']), 1: colored('Add', 'green', attrs=['bold'])}
             log = [self.real_name, self.name.zfill(9), self.for_key.zfill(7), course,
@@ -192,8 +192,7 @@ class Student():
             elif course_data['active']:
                      updates['Host System'].append(log)
 
-        # Check the host school registrations for active courses that don't appear 
-        # in the home school.
+        # Check the host school registrations for missing data in the home school system.
 
         for course in self.registrations['foreign']:
             course_data = self.registrations['foreign'][course]
