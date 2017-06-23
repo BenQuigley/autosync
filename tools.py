@@ -30,6 +30,9 @@ def lazy_dt(string='2016-12-31'):
     return answer
 
 
+class SourceDataException(Exception):
+    pass
+
 def get_file(file_pattern, target_dir=None, description = 'file'):
 
     # Helps the user find the file matching the description and filename
@@ -62,10 +65,9 @@ def get_file(file_pattern, target_dir=None, description = 'file'):
 
     files = glob.glob('{}/{}'.format(target_dir, file_pattern))
     if not files:
-        print("ERROR: No source file found. Please refer to "\
-              "your documentation for "\
-              "instructions on how to create a source file for this report.\n")
-        raise Exception('There was an error with the source data.')
+        print("")
+        raise SourceDataException("No source file found. Please refer to your documentation for "\
+              "instructions on how to create a source file for this report.")
     elif len(files) == 1:
         filename = files[0]
         print('Found it:', filename)

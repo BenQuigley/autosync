@@ -1,14 +1,11 @@
+#!/usr/local/bin/python3
+
 from __future__ import print_function
 import csv
 from tools import get_file
 from pprint import PrettyPrinter
 from tabulate import tabulate
 from termcolor import colored
-
-try:
-    from ids_hack import ids as missing_ids
-except ImportError:
-    missing_ids = {}
 
 pp = PrettyPrinter(indent=4)
 
@@ -157,8 +154,13 @@ class Student():
         # Hack to deal with missing host school IDs from home school data.
         # Some students will not be in host school SIS yet at all; handle this later during read_foreign_roster.
 
-        if not self.for_key and name in missing_ids:
+        try:
+            from ids_hack import ids as missing_ids
+            if not self.for_key and name in missing_ids:
                 self.for_key = missing_ids[name]
+
+        except ImportError:
+            missing_ids = {}
 
 
     def register(self, mode, course_sec, course_data, names):
