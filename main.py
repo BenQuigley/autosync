@@ -9,6 +9,12 @@ from termcolor import colored
 
 pp = PrettyPrinter(indent=4)
 
+try:
+    from ids_hack import ids as MISSING_IDS
+except ImportError:
+    MISSING_IDS = {}
+
+
 # Read the home school and host school registration records, create student 
 # and class records, and identify any students not registered in both systems.
 
@@ -80,12 +86,12 @@ class Institution():
                 names = {'eff date': 'Last Revision', 'grade': 'Final Grade', 'active': 'active'}
                 student.register(mode='home', course_sec=course, course_data=record, names=names)
 
-
     def read_foreign_roster(self):
 
         # Read the SIS output data from the host institution.
 
-        csv_file = get_file('BoCo Integrated Offerings Registrations for A Given Term*.csv', target_dir='/home/iroh/Downloads')
+        csv_file = get_file('BoCo Integrated Offerings Registrations for A Given Term*.csv',
+                            target_dir='/home/iroh/Downloads')
         data = self.make_dict(csv_file, student_id_column=0, course_section_column=3)
 
         # Some students without home institution IDs entered into the host system, either
@@ -123,7 +129,6 @@ class Institution():
 
         # If the student isn't on the host registrations list, and should be according to the home institution,
         # then raise this error containing the information needed to add them to the host SIS.
-        # TODO: update this to print out in a nice table like the other errors.
 
             except KeyError:
                 if student.active:
@@ -154,14 +159,8 @@ class Student():
         # Hack to deal with missing host school IDs from home school data.
         # Some students will not be in host school SIS yet at all; handle this later during read_foreign_roster.
 
-        try:
-            from ids_hack import ids as missing_ids
-            if not self.for_key and name in missing_ids:
-                self.for_key = missing_ids[name]
-
-        except ImportError:
-            missing_ids = {}
-
+        if not self.for_key and name in MISSING_IDS:
+            self.for_key = MISSING_IDS[name]
 
     def register(self, mode, course_sec, course_data, names):
 
@@ -173,13 +172,11 @@ class Student():
         if course_data['active'] and mode == 'home':
             self.active = True
 
-
     def reckon(self):
-    
-        updates = {'Home System': [], 'Host System': []}
 
         # Evaluate the home school registrations for missing data in the host school.
 
+        updates = {'Home System': [], 'Host System': []}
         for course in self.registrations['home']:
             course_data = self.registrations['home'][course]
             show_status = {0: colored('Drop', 'red', attrs=['bold']), 1: colored('Add', 'green', attrs=['bold'])}
@@ -202,8 +199,8 @@ class Student():
                   colored('Appears in host but not home system?', 'red', attrs=['bold']), course_data['eff date']]
             if not course in self.registrations['home'] and course_data['active']:
                 updates['Home System'].append(log)
-
         return updates
+
 
 def main():
 
